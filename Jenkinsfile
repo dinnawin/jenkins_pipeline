@@ -1,14 +1,21 @@
 pipeline {
-    agent {
-        docker {
-            image 'python:3.5.1'
+    agent any
+    stages {
+        stage('Test') {
+            steps {
+                sh 'echo "Fail!"; exit1'
+            }
         }
     }
-    stages {
-        stage('build') {
-            steps {
-                sh 'python --version'
-            }
+    post {
+        always {
+            echo 'This will always run'
+        }
+        success {
+            echo 'This will only run if success'
+        }
+        failure {
+            echo 'This will always run if failed'
         }
     }
 }
