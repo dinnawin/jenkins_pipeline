@@ -6,7 +6,7 @@ pipeline {
     stages {
         stage('Test') {
             steps {
-                sh 'echo "Fail!"; exit1'
+                echo "Hello ${params.DEPLOY_ENV}"
             }
         }
     }
