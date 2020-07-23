@@ -1,6 +1,6 @@
 pipeline {
     parameters {
-        choice(name: 'PLATFORM_FILTER', choices: ['all', 'linux', 'windows', 'mac'], description: 'Run on specific platform')
+        string(name: 'DEPLOY_ENV', defaultValue: 'staging', description: '')
     }
     agent any
     stages {
