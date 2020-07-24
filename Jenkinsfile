@@ -7,7 +7,6 @@ pipeline {
         stage('Test') {
             steps {
                 echo "Hello ${params.DEPLOY_ENV}"
-                context.log("hahahahahaha")
             }
         }
     }
