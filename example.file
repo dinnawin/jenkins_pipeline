@@ -12,3 +12,61 @@ stage('Checkout SCM') {
    }
 }
 ----------------------------
+--------with function-------
+pipeline {
+    agent any
+    stages {
+        stage('Build') {
+            steps {
+                script {
+                    if (env.BRANCH_NAME == 'test') {
+                        sshexec('hawksight_test')
+                    }
+
+                    if (env.BRANCH_NAME == 'staging') {
+                        sshexec('hawksight_staging')
+                    }
+
+                    if (env.BRANCH_NAME == 'develop') {
+                        sshexec('hawksight_develop')
+                        sshexec('hawksight_preprod')
+                    }
+                }
+            }
+        }
+    }
+    post {
+        always {
+            discordSend 
+                description: "Jenkins Pipeline Build", 
+                link: env.BUILD_URL, result: currentBuild.currentResult, 
+                title: JOB_NAME, webhookURL: env.hwk_srm_frontend
+        }
+    }
+}
+
+def sshexec(configName) {
+    sshPublisher(
+        publishers: [
+            sshPublisherDesc(
+                configName: configName,
+                transfers: [
+                    sshTransfer(
+                        execCommand: "docker ps -q | xargs -r docker kill"
+                    ),
+                    sshTransfer(
+                        execCommand: "docker images -f dangling=true -q | xargs -r -n1 docker rmi -f"
+                    ),
+                    sshTransfer(
+                        execCommand: "cd /home/ubuntu/hwk-srm-frontend/ && docker-compose rm -f -v"
+                    ),
+                    sshTransfer(
+                        execCommand: "cd /home/ubuntu/hwk-srm-frontend/ && git pull && docker-compose up --build -d"
+                    )
+                ]
+            )
+        ]
+    )
+}
+------------------------------
+
